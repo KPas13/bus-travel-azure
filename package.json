@@ -1,10 +1,10 @@
 {
-  "name": "bustravel",
+  "name": "labbus",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node index.js",
     "build": "echo 'No build step required' && exit 0"
   },
   "keywords": [],
