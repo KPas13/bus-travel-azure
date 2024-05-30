@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bus Tracking</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map { height: 500px; width: 100%; }
+    </style>
+</head>
+<body>
+<h1>Bus Tracking</h1>
+<div id="map"></div>
+<script>
+    async function initMap() {
+        const response = await fetch('/api/bus-routes');
+        const routes = await response.json();
+
+        const map = L.map('map').setView([49.4444, 32.0598], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Групуємо локації по маршрутам
+        const groupedRoutes = routes.reduce((acc, curr) => {
+            if (!acc[curr.RouteID]) {
+                acc[curr.RouteID] = [];
+            }
+            acc[curr.RouteID].push([curr.Latitude, curr.Longitude]);
+            return acc;
+        }, {});
+
+        // Додаємо лінії маршрутів на карту
+        Object.keys(groupedRoutes).forEach(routeID => {
+            const routeCoordinates = groupedRoutes[routeID];
+            const polyline = L.polyline(routeCoordinates, { color: 'blue' }).addTo(map);
+            map.fitBounds(polyline.getBounds());
+        });
+
+        // Додаємо маркери для кожної локації
+        routes.forEach(location => {
+            L.marker([location.Latitude, location.Longitude])
+                .addTo(map)
+                .bindPopup(`Bus ${location.RouteID}: ${location.RouteName}`);
+        });
+    }
+
+    initMap();
+</script>
+</body>
+</html>
